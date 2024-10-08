@@ -1,8 +1,3 @@
 streamlit
 langchain-google-genai
 pyyaml
-<<<<<<< HEAD
-streamlit-authenticator
-=======
-streamlit-authenticator
->>>>>>> cc2498f45a7307b54667cfe193837d1de0975ff9
