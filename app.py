@@ -184,9 +184,9 @@ def main():
                     st.error(f"Ocorreu um erro ao gerar o relatório: {e}")
 
     elif authentication_status == False:
-        st.error('Username/password is incorrect')
+        st.error('Nome de usuário/senha incorretos.')
     elif authentication_status == None:
-        st.warning('Please enter your username and password')
+        st.warning('Por favor, insira seu nome de usuário e senha.')
 
 if __name__ == "__main__":
     main()
