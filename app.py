@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_authenticator import Authenticate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 import os
@@ -85,112 +84,79 @@ prompt_template = PromptTemplate(template=template, input_variables=[
 generos = ['Masculino', 'Feminino', 'Não-binário', 'Prefiro não especificar']
 abordagens_terapeuticas = ['Terapia Cognitivo-Comportamental', 'Psicanálise', 'Terapia Humanista', 'Terapia Sistêmica', 'Terapia Integrativa', 'Terapia ABA']
 
-# Configuração de autenticação
-def load_auth_config():
-    with open('auth_config.yaml') as file:
-        config = yaml.safe_load(file)
-    return config
+# Configuração da página Streamlit
+st.set_page_config(page_title="Psico-IA - Assistente de Relatórios Psicológicos", layout="wide")
+st.title('Psico-IA - Assistente de Relatórios Psicológicos')
 
-def main():
-    # Configuração da página Streamlit
-    st.set_page_config(page_title="Psico-IA - Assistente de Relatórios Psicológicos", layout="wide")
-    
-    # Carregar configurações
-    config = load_config()
-    if config is None:
-        st.stop()
-    
-    auth_config = load_auth_config()
-    authenticator = Authenticate(
-        auth_config['credentials'],
-        auth_config['cookie']['name'],
-        auth_config['cookie']['key'],
-        auth_config['cookie']['expiry_days']
-    )
+# Carregar configuração
+config = load_config()
+if config is None:
+    st.stop()
 
-       # Interface de autenticação
-   name, authentication_status, username = authenticator.login('Login', 'unrendered')
+# Inicializar modelo AI
+ai_model = initialize_ai_model(config['GOOGLE_API_KEY'])
+if ai_model is None:
+    st.stop()
 
+# Interface do usuário
+col1, col2 = st.columns(2)
 
+with col1:
+    nome = st.text_input('Nome do paciente:')
+    idade = st.number_input('Idade:', min_value=0, max_value=120, step=1)
+    genero = st.selectbox("Gênero:", generos)
+    motivo_consulta = st.text_area('Motivo da consulta:')
+    diagnostico_previo = st.selectbox('Paciente possui diagnóstico prévio?', ['Não', 'Sim'])
+    diagnostico_detalhes = st.text_input('Caso tenha sinalizado que sim acima, insira aqui o diagnóstico:')
+    historico_medico = st.text_area('Histórico médico relevante:')
+    sintomas_principais = st.text_area('Sintomas principais:')
 
-    if authentication_status:
-        authenticator.logout('Logout', 'main')
-        st.write(f'Bem-vindo *{name}*')
-        
-        st.title('Psico-IA - Assistente de Relatórios Psicológicos')
+with col2:
+    duracao_sintomas = st.text_input('Duração dos sintomas:')
+    fatores_estressores = st.text_area('Fatores estressores atuais:')
+    historico_familiar = st.text_area('Histórico familiar de saúde mental:')
+    medicacoes = st.text_area('Medicações atuais:')
+    abordagem_terapeutica = st.selectbox('Abordagem terapêutica preferida:', abordagens_terapeuticas)
 
-        # Inicializar modelo AI
-        ai_model = initialize_ai_model(config['GOOGLE_API_KEY'])
-        if ai_model is None:
-            st.stop()
-
-        # Interface do usuário
-        col1, col2 = st.columns(2)
-
-        with col1:
-            nome = st.text_input('Nome do paciente:')
-            idade = st.number_input('Idade:', min_value=0, max_value=120, step=1)
-            genero = st.selectbox("Gênero:", generos)
-            motivo_consulta = st.text_area('Motivo da consulta:')
-            diagnostico_previo = st.selectbox('Paciente possui diagnóstico prévio?', ['Não', 'Sim'])
-            diagnostico_detalhes = st.text_input('Caso tenha sinalizado que sim acima, insira aqui o diagnóstico:')
-            historico_medico = st.text_area('Histórico médico relevante:')
-            sintomas_principais = st.text_area('Sintomas principais:')
-
-        with col2:
-            duracao_sintomas = st.text_input('Duração dos sintomas:')
-            fatores_estressores = st.text_area('Fatores estressores atuais:')
-            historico_familiar = st.text_area('Histórico familiar de saúde mental:')
-            medicacoes = st.text_area('Medicações atuais:')
-            abordagem_terapeutica = st.selectbox('Abordagem terapêutica preferida:', abordagens_terapeuticas)
-
-        if st.button('Gerar Relatório Psicológico'):
-            logger.info("Botão 'Gerar Relatório Psicológico' pressionado.")
-            if not all([nome, idade, motivo_consulta, sintomas_principais]):
-                st.warning('Por favor, preencha todos os campos obrigatórios.')
+if st.button('Gerar Relatório Psicológico'):
+    logger.info("Botão 'Gerar Relatório Psicológico' pressionado.")
+    if not all([nome, idade, motivo_consulta, sintomas_principais]):
+        st.warning('Por favor, preencha todos os campos obrigatórios.')
+    else:
+        try:
+            # Definir instruções baseadas no diagnóstico prévio
+            if diagnostico_previo == 'Sim':
+                instrucoes_diagnostico = "Como o paciente possui um diagnóstico prévio, inclua considerações sobre este diagnóstico no relatório e como ele se relaciona com os sintomas e o tratamento proposto."
             else:
-                try:
-                    # Definir instruções baseadas no diagnóstico prévio
-                    if diagnostico_previo == 'Sim':
-                        instrucoes_diagnostico = "Como o paciente possui um diagnóstico prévio, inclua considerações sobre este diagnóstico no relatório e como ele se relaciona com os sintomas e o tratamento proposto."
-                    else:
-                        instrucoes_diagnostico = "Como o paciente não possui um diagnóstico prévio, evite especulações sobre possíveis diagnósticos. Foque na descrição dos sintomas e no plano de tratamento sem fazer prognósticos específicos."
+                instrucoes_diagnostico = "Como o paciente não possui um diagnóstico prévio, evite especulações sobre possíveis diagnósticos. Foque na descrição dos sintomas e no plano de tratamento sem fazer prognósticos específicos."
 
-                    prompt = prompt_template.format(
-                        nome=nome,
-                        idade=idade,
-                        genero=genero,
-                        motivo_consulta=motivo_consulta,
-                        diagnostico_previo=diagnostico_previo,
-                        diagnostico_detalhes=diagnostico_detalhes,
-                        historico_medico=historico_medico,
-                        sintomas_principais=sintomas_principais,
-                        duracao_sintomas=duracao_sintomas,
-                        fatores_estressores=fatores_estressores,
-                        historico_familiar=historico_familiar,
-                        medicacoes=medicacoes,
-                        abordagem_terapeutica=abordagem_terapeutica,
-                        instrucoes_diagnostico=instrucoes_diagnostico
-                    )
-                    logger.info("Prompt gerado com sucesso.")
+            prompt = prompt_template.format(
+                nome=nome,
+                idade=idade,
+                genero=genero,
+                motivo_consulta=motivo_consulta,
+                diagnostico_previo=diagnostico_previo,
+                diagnostico_detalhes=diagnostico_detalhes,
+                historico_medico=historico_medico,
+                sintomas_principais=sintomas_principais,
+                duracao_sintomas=duracao_sintomas,
+                fatores_estressores=fatores_estressores,
+                historico_familiar=historico_familiar,
+                medicacoes=medicacoes,
+                abordagem_terapeutica=abordagem_terapeutica,
+                instrucoes_diagnostico=instrucoes_diagnostico
+            )
+            logger.info("Prompt gerado com sucesso.")
 
-                    logger.info("Invocando modelo AI...")
-                    response = ai_model.invoke(prompt)
-                    logger.info("Resposta do modelo AI recebida.")
+            logger.info("Invocando modelo AI...")
+            response = ai_model.invoke(prompt)
+            logger.info("Resposta do modelo AI recebida.")
 
-                    st.subheader('Relatório Psicológico Gerado:')
-                    st.markdown(response.content)
-                    logger.info("Relatório exibido com sucesso.")
-                except Exception as e:
-                    logger.error(f"Erro ao gerar relatório: {e}")
-                    st.error(f"Ocorreu um erro ao gerar o relatório: {e}")
-
-    elif authentication_status == False:
-        st.error('Nome de usuário/senha incorretos.')
-    elif authentication_status == None:
-        st.warning('Por favor, insira seu nome de usuário e senha.')
-
-if __name__ == "__main__":
-    main()
+            st.subheader('Relatório Psicológico Gerado:')
+            st.markdown(response.content)
+            logger.info("Relatório exibido com sucesso.")
+        except Exception as e:
+            logger.error(f"Erro ao gerar relatório: {e}")
+            st.error(f"Ocorreu um erro ao gerar o relatório: {e}")
 
 logger.info("Aplicação Streamlit iniciada e pronta para uso.")
