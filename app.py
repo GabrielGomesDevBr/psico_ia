@@ -109,7 +109,8 @@ def main():
     )
 
        # Interface de autenticação
-    name, authentication_status, username = authenticator.login('Login', 'sidebar')  # ou 'unrendered'
+   name, authentication_status, username = authenticator.login('Login', 'unrendered')
+
 
 
     if authentication_status:
