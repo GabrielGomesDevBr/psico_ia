@@ -1,5 +1,5 @@
 import streamlit as st
-import streamlit_authenticator as stauth
+from streamlit_authenticator import Authenticate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 import os
@@ -101,12 +101,11 @@ def main():
         st.stop()
     
     auth_config = load_auth_config()
-    authenticator = stauth.Authenticate(
+    authenticator = Authenticate(
         auth_config['credentials'],
         auth_config['cookie']['name'],
         auth_config['cookie']['key'],
-        auth_config['cookie']['expiry_days'],
-        auth_config['preauthorized']
+        auth_config['cookie']['expiry_days']
     )
 
     # Interface de autenticação
@@ -191,3 +190,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+logger.info("Aplicação Streamlit iniciada e pronta para uso.")
