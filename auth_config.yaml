@@ -1,10 +1,16 @@
 credentials:
   usernames:
-    jsmith:
-      email: jsmith@example.com
-      name: John Smith
-      password: $2b$12$AbC123DefG456HiJ789KlM # Hashed password
+    user1:
+      email: user1@example.com
+      name: "Usuário Um"
+      password: "senha_segura_1"
+    user2:
+      email: user2@example.com
+      name: "Usuário Dois"
+      password: "senha_segura_2"
+  
 cookie:
+  name: "auth_cookie"
+  key: "uma_chave_secreta_aqui"
   expiry_days: 30
-  key: some_signature_key
-  name: some_cookie_name
+
