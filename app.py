@@ -1,40 +1,38 @@
-Python 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)] on win32
-Type "help", "copyright", "credits" or "license()" for more information.
->>> import streamlit as st
-... import streamlit_authenticator as stauth
-... from langchain_google_genai import ChatGoogleGenerativeAI
-... from langchain.prompts import PromptTemplate
-... import os
-... import yaml
-... import logging
-... 
-... # Configurar logging
-... logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-... logger = logging.getLogger(__name__)
-... 
-... # Função para carregar configuração
-... def load_config():
-...     try:
-...         with open('config.yaml', 'r') as config_file:
-...             config = yaml.safe_load(config_file)
-...         logger.info("Configuração carregada com sucesso.")
-...         return config
-...     except Exception as e:
-...         logger.error(f"Erro ao carregar a configuração: {e}")
-...         st.error("Erro ao carregar a configuração. Verifique o arquivo config.yaml.")
-...         return None
-... 
-... # Função para inicializar o modelo AI
-... def initialize_ai_model(api_key):
-...     try:
-...         os.environ['GOOGLE_API_KEY'] = api_key
-...         model = ChatGoogleGenerativeAI(model='gemini-pro')
-...         logger.info("Modelo AI inicializado com sucesso.")
-...         return model
-...     except Exception as e:
-...         logger.error(f"Erro ao inicializar o modelo AI: {e}")
-...         st.error("Erro ao inicializar o modelo AI. Verifique sua chave API.")
-...         return None
+import streamlit as st
+import streamlit_authenticator as stauth
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
+import os
+import yaml
+import logging
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Função para carregar configuração
+def load_config():
+    try:
+        with open('config.yaml', 'r') as config_file:
+            config = yaml.safe_load(config_file)
+        logger.info("Configuração carregada com sucesso.")
+        return config
+    except Exception as e:
+        logger.error(f"Erro ao carregar a configuração: {e}")
+        st.error("Erro ao carregar a configuração. Verifique o arquivo config.yaml.")
+        return None
+
+# Função para inicializar o modelo AI
+def initialize_ai_model(api_key):
+    try:
+        os.environ['GOOGLE_API_KEY'] = api_key
+        model = ChatGoogleGenerativeAI(model='gemini-pro')
+        logger.info("Modelo AI inicializado com sucesso.")
+        return model
+    except Exception as e:
+        logger.error(f"Erro ao inicializar o modelo AI: {e}")
+        st.error("Erro ao inicializar o modelo AI. Verifique sua chave API.")
+        return None
 
 # Template do prompt
 template = '''
@@ -193,4 +191,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
