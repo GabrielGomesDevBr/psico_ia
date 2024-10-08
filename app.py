@@ -108,8 +108,9 @@ def main():
         auth_config['cookie']['expiry_days']
     )
 
-    # Interface de autenticação
-    name, authentication_status, username = authenticator.login('Login', 'main')
+       # Interface de autenticação
+    name, authentication_status, username = authenticator.login('Login', 'sidebar')  # ou 'unrendered'
+
 
     if authentication_status:
         authenticator.logout('Logout', 'main')
