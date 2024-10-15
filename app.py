@@ -95,7 +95,7 @@ generos = ['Masculino', 'Feminino', 'Não-binário', 'Prefiro não especificar']
 abordagens_terapeuticas = ['Terapia Cognitivo-Comportamental', 'Psicanálise', 'Terapia Humanista', 'Terapia Sistêmica', 'Terapia Integrativa', 'Terapia ABA']
 
 # Configuração da página Streamlit
-st.set_page_config(page_title=" 🧠 Psico-IA - Assistente de Relatórios Psicológicos", layout="wide")
+st.set_page_config(page_title="Psico-IA - Assistente de Relatórios Psicológicos", layout="wide")
 
 # Aplicar estilo personalizado
 st.markdown("""
