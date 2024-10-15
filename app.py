@@ -137,7 +137,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Título principal
-st.title('Psico-IA - Assistente de Relatórios Psicológicos')
+st.title('"🧠"Psico-IA - Assistente de Relatórios Psicológicos')
 st.markdown('---')
 
 # Carregar configuração
